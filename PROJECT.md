@@ -123,17 +123,23 @@ The generated `geom` column lets PostGIS do spatial queries (bounding box, dista
 
 ---
 
-## Open design questions (for the viewer)
+## Default surface: a daily lens
 
-These don't have right answers — they're the things to decide *while building Phase 1*:
+Phase 1 focuses on the **per-day view** — opening the app shows one day's movements as a curated trip artifact (a route line with start/end markers, room to grow into time-of-segment labels, place icons, and other annotations in the lineage of [Felt's beautiful-map blog post](https://felt.com/blog/how-to-design-a-beautiful-map)). Date selection lives in a floating **calendar pill** at the top-left of the map: closed it shows the active date; opened it reveals a month grid where days with data are visually weighted by point count, so the calendar doubles as a discovery surface.
 
-- **Default view:** Last 7 days? Last month? "Today"? A heatmap of everything?
-- **Time scrubbing:** Slider, calendar picker, or both?
-- **What is a "trip":** Auto-detect by time gaps and speed, or user-defined, or not a concept at all?
-- **Place rendering:** Cluster stationary points into named places? Show as dots? Don't show at all?
-- **Path style:** Lines colored by speed? Time? Single color with low opacity so repetition builds heat?
-- **Outlier handling:** Filter by accuracy threshold? Show outliers in a different color? Ignore the problem until it bites?
-- **Custom Mapbox style:** Start from "Monochrome" or "Light" in Studio and modify, or build from scratch?
+The earlier hypothesis of "heatmap of everything" as the default was *unset* during Phase 1 iteration. The reasoning, in short: Felt-style narrative artifacts are scoped — they assume *one* trip, intentionally curated. All-time personal location data is the inverse (thousands of overlapping movements, hundreds of stationary clusters) and a literal rendering of all of it is hostile to that aesthetic. Heatmap *is* the right answer to "where do I spend the most time," but it answers a different question than "where was I on this date" — and the per-date question is the more frequent one. So heatmap and other all-time surfaces are deferred until the daily lens is rich; full reasoning lives in `NOTES.md`.
+
+## Other open design questions (for the viewer)
+
+These don't have right answers — they're the things to decide *while building Phase 1* (and Phase 2/3 onward):
+
+- **All-time surface (deferred):** Once the daily lens is rich, what does the all-time view become? Heatmap, calendar of trips, a place-cluster map, all of the above behind a toggle?
+- **Search / query bar:** "Where was I when…", "trips over 2h," "places I've been 5+ times" — natural-language-ish querying. A much bigger product surface than the date picker; deferred until the daily lens settles.
+- **Time scrubbing within a day:** A slider that animates progression through a single day's points? Or static "everything from this day at once"?
+- **What is a "trip":** Auto-detect by time gaps and speed, user-defined, or not a concept at all? (A day is the rough unit for now; trips are a finer-grained question.)
+- **Place rendering:** Cluster stationary points into named places? Show as icons on the daily lens? Auto-detect, manual tagging, or hybrid?
+- **Outlier handling:** Filter by accuracy threshold? Show outliers in a different color? Ignore until it bites? (One 208 m/s GPS-jitter point already exists in the fixture.)
+- **Custom Mapbox style:** Start from "Monochrome" or "Light" in Studio and modify, or build from scratch? (Currently using a custom Studio style; iteration ongoing.)
 
 ---
 
@@ -162,7 +168,9 @@ Naming this matters because every time a feature pulls toward one of these, it's
 
 - `static/points.geojson` — fake data for Phase 1, Mapbox-ready
 - `static/points.json` — same data in the flat row shape that mirrors the eventual DB
-- `scripts/generate_points.py` — regenerator if you want to tweak the fake data shape
+- `generate_points.py` — regenerator if you want to tweak the fake data shape
+- `src/lib/components/Map.svelte` — the map surface (full-bleed Mapbox, renders the selected day)
+- `src/lib/components/CalendarPill.svelte` — floating date picker with point-count tinting
 
 ---
 
